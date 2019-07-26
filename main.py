@@ -6,44 +6,68 @@ import getpass
 from random import randrange
 from email.mime.text import MIMEText
 from email.utils import formataddr
-
+import Banners
 
 
 def menuWybierzA(p):
-    y = int(input("1 - Podaj liczbę A\n2 - Generuj liczbę A\n3 - Wczytaj z pliku\n"))
-    if y == 1:
-        liczbaA = int(input("Wpisz liczbę: "))
-        menuZapis(liczbaA)
-        return liczbaA
-    elif y == 2:
-        liczbaA = genA(p)
-        print("Wygenerowana liczba A to: ", liczbaA)
-        menuZapis(liczbaA)
-        return liczbaA
-    elif y == 3:
-        liczbaA = wczytaj()
-        liczbaA = int(liczbaA[0])
-        return liczbaA
+    y=0
+    while y != 1 | y != 2 | y != 3 | y != 4:
+        Banners.bannerWybierzA()
+        y = int(input("Twój wybór to: "))
+        if y == 1:
+            liczbaA = int(input("Wpisz liczbę: "))
+            menuZapis(liczbaA)
+            return liczbaA
+        elif y == 2:
+            liczbaA = genA(p)
+            print("Wygenerowana liczba A to: ", liczbaA)
+            menuZapis(liczbaA)
+            return liczbaA
+        elif y == 3:
+            liczbaA = wczytaj()
+            liczbaA = int(liczbaA[0])
+            return liczbaA
+        elif y == 4:
+            liczbaA = 0
+            return liczbaA
+        else:
+            y = 0
+            print("Wybierz opcję od 1 - 4!")
 
 
 def menuWczytajKlucz():
-    y = int(input("1 - Podaj klucz A\n3 - Wczytaj z pliku\n"))
-    if y == 1:
-        klucz = int(input("Wpisz klucz: "))
-        menuZapis(klucz)
-        return klucz
-    elif y == 2:
-        klucz = wczytaj()
-        klucz = int(klucz[0])
-        return klucz
+    y = 0
+    while y != 1 | 2 | 3:
+        Banners.bannerWczytajKlucz()
+        y = int(input("Twój wybór: "))
+        if y == 1:
+            klucz = int(input("Wpisz klucz: "))
+            menuZapis(klucz)
+            return klucz
+        elif y == 2:
+            klucz = wczytaj()
+            klucz = int(klucz[0])
+            return klucz
+        elif y == 3:
+            klucz = [0, 0]
+            return klucz
+        else:
+            y = 0
+            print("Wybierz opcję od 1 - 2!\n")
 
 
 def menuZapis(x):
-    z = int(input("1 - Zapisz do pliku\n2 - Wróć do Menu\n"))
-    if z == 1:
-        zapiszDoCsv(x)
-    else:
-        pass
+    y = 0
+    while y != 1:
+        Banners.bannerMenuZapis()
+        y = int(input("Twój wybór: "))
+        if y == 1:
+            zapiszDoCsv(x)
+        elif y == 2:
+            break
+        else:
+            print("Wybierz od 1 - 2")
+    pass
 
 
 def wczytajPG():
@@ -110,28 +134,35 @@ def wyslijEmail(key):
     except:
         print('Coś nie tak...')
 
+def dane(p,g,liczbaA, wiadomoscJawna, kluczPrywatny):
+    print("p:\t%d\ng:\t%d\nliczba A:\t%d\n"
+          "Wiadomość:\t%d\nKlucz prywatny:\t%d\n "
+          % (p, g, liczbaA, wiadomoscJawna, kluczPrywatny))
+
+
 def main():
-    global UnboundLocalError
     try:
         p, g = wczytajPG()
         p = int(p)
         g = int(g)
         liczbaA = 0
-
     except (FileNotFoundError, IOError):
         print("Błędny plik lub ścieżka")
+    wiadomoscJawna = 0
+    kluczPrywatny = 0
     x = 0
+    Banners.bannerMain()
+    dane(p, g, liczbaA, wiadomoscJawna, kluczPrywatny)
     while x != 7:
+        Banners.bannerMain()
+        dane(p, g, liczbaA, wiadomoscJawna, kluczPrywatny)
         print("p = %d, g = %d, liczba A = %d" % (p, g, liczbaA))
-        x = int(input("Wybierz: \n1 - Wybierz liczbę A\n2 - Wczytaj wiadomość\n"
-                      "3 - Generuj wiadomość\n4 - Generuj klucz\n5 - Pokaż klucz\n6 - Wyślij klucz\n"
-                      "7 - Zakończ program\n"))
-
+        x = int(input("Wybierz od 1 do 7: "))
         if x == 1:
             liczbaA = menuWybierzA(p)
 
         elif x == 2:
-            wiadomoscJawna = wczytaj()
+            wiadomoscJawna = menuWczytajKlucz()
             wiadomoscJawna = int(wiadomoscJawna[0])
 
         elif x == 3:
@@ -140,9 +171,12 @@ def main():
             menuZapis(wiadomoscJawna)
 
         elif x == 4:
-            kluczPrywatny = genKlucz(wiadomoscJawna, liczbaA, p)
-            print("Klucz: ", kluczPrywatny)
-            menuZapis(kluczPrywatny)
+            try:
+                kluczPrywatny = genKlucz(wiadomoscJawna, liczbaA, p)
+                print("Klucz: ", kluczPrywatny)
+                menuZapis(kluczPrywatny)
+            except UnboundLocalError:
+                print("Nie wczytałeś wiadomości!")
 
         elif x == 5:
             try:
@@ -158,8 +192,10 @@ def main():
                 zapiszDoCsv(kluczPrywatny)
             else:
                 pass
-        elif x ==6:
+        elif x == 6:
             wyslijEmail(wiadomoscJawna)
+        else:
+            pass
     exit()
 
 
